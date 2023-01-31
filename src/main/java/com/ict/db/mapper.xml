@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="bbs">
+
+	<!-- 원글 리스트 -->
+	<!--<select id="list" resultType="com.ict.db.BVO">
+		select * from bbs_t order by b_idx desc
+	</select>-->
+	
+	<!-- 전체 게시물의 수 -->
+	<select id="count" resultType="int">
+		select count(*) from bbs_t
+	</select>
+	
+	<select id="list" parameterType="Map" resultType="com.ict.db.BVO">
+		select * from (
+	 	     select rownum r_num , a.* from (
+  				    select * from bbs_t order by b_idx desc
+  				) a 
+  			) where r_num BETWEEN #{begin} and #{end} 
+	</select>
+	
+	<!-- 원글 삽입 -->
+	<insert id="insert" parameterType="com.ict.db.BVO">
+		insert into bbs_t(b_idx,subject,writer,	content,f_name,	pwd,write_date,hit)
+		values(bbs_t_seq.nextval, #{subject}, #{writer},#{content},
+				#{f_name}, #{pwd},sysdate,0)
+	</insert>
+	
+	<!-- 조회수 업데이트 -->
+	<update id="hitup" parameterType="String">
+		update bbs_t set hit = hit+1 where b_idx = #{b_idx}
+	</update>
+	
+	<!-- 상세보기 -->
+	<select id="onelist" parameterType="String" resultType="com.ict.db.BVO">
+		select * from bbs_t  where b_idx = #{b_idx}
+	</select>
+	
+	<!-- 원글 관련 댓글 가져오기 -->
+	<select id="c_list" parameterType="String" resultType="com.ict.db.CVO">
+		select * from comment_t where b_idx = #{b_idx} order by c_idx asc
+	</select>
+	
+	<!-- 댓글 삽입 -->
+	<insert id="c_insert" parameterType="com.ict.db.CVO">
+		insert into comment_t(c_idx, writer, content, pwd, write_date, b_idx) 
+		values(comment_t_seq.nextval, #{writer}, #{content}, #{pwd}, sysdate, #{b_idx})
+	</insert>
+	
+	<!-- 댓글 삭제 1-->
+	<delete id="c_delete" parameterType="String">
+		delete from comment_t where c_idx = #{c_idx}
+	</delete>
+	
+	<!-- 원글 패스워드 구하기 -->
+	<select id="getpwd" parameterType="String" resultType="String">
+		select pwd from bbs_t where b_idx = #{b_idx}
+	</select>
+	
+	<!-- 댓글 삭제 2-->
+	<delete id="comment_delete" parameterType="String">
+		delete from comment_t where b_idx = #{b_idx}
+	</delete>
+	
+	<!-- 원글삭제 -->
+	<delete id="delete" parameterType="String">
+		delete from bbs_t where b_idx = #{b_idx}
+	</delete>
+	
+	<!-- 원글 수정 -->
+	<update id="update" parameterType="com.ict.db.BVO">
+		update bbs_t set subject=#{subject}, writer=#{writer}, content=#{content}, f_name=#{f_name} where b_idx = #{b_idx}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
